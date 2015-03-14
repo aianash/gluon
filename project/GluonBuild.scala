@@ -73,7 +73,7 @@ object GluonBuild extends Build with Libraries {
       SbtStartScript.startScriptForClassesSettings ++
       ScroogeSBT.newSettings
   ).settings(
-    name := "gluon-core",
+    name := "gluon-validator",
 
     libraryDependencies ++= Seq(
     ) ++ Libs.scalaz

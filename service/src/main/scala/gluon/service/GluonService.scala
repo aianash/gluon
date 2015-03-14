@@ -39,3 +39,11 @@ class GluonService(implicit inj: Injector) extends Gluon.FutureIface{
   }
 }
 
+
+object GluonService {
+
+  def start(implicit inj: Injector) = {
+    val settings = GluonSettings(inject [ActorSystem])
+    Thrift.serveIface(settings.GluonEndpoint, inject [GluonService])
+  }
+}

@@ -9,7 +9,9 @@ import com.twitter.util.Await
 
 import akka.actor.ActorSystem
 
-import gluon.service._
+import gluon.core.injectors._
+import gluon.service.injectors._
+
 /**
  * Gluon Server that starts the GluonService
  *
@@ -20,8 +22,13 @@ import gluon.service._
 object GluonServer {
 
   def main(args: Array[String]) {
+    
+    val config = ConfigFactory.load("gluon")
 
-    val service = GluonFinagleService(new GluonService, new TBinaryProtocol.Factory());
+    implicit val appModule = new ActorSystemModule(config) :: new GluonModule
+
+    val service = GluonService.start
+
     Await.ready(service)
   }
 
