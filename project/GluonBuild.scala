@@ -65,6 +65,25 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.scaldi
   )
 
+    lazy val validator = Project(
+    id = "gluon-validator",
+    base = file("validator"),
+    settings = Project.defaultSettings ++
+      sharedSettings ++
+      SbtStartScript.startScriptForClassesSettings ++
+      ScroogeSBT.newSettings
+  ).settings(
+    name := "gluon-core",
+
+    libraryDependencies ++= Seq(
+    ) ++ Libs.scalaz
+      ++ Libs.scroogeCore
+      ++ Libs.finagleThrift
+      ++ Libs.libThrift
+      ++ Libs.akka
+      ++ Libs.scaldi
+  ).dependsOn(core)
+
   lazy val service = Project(
     id = "gluon-service",
     base = file("service"),
@@ -84,7 +103,7 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.scaldi
       ++ Libs.scaldiAkka
       ++ Libs.bijection
-  ).dependsOn(core)
+  ).dependsOn(core, validator)
 
 
 }
