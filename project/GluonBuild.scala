@@ -43,7 +43,7 @@ object GluonBuild extends Build with Libraries {
     id = "gluon",
     base = file("."),
     settings = Project.defaultSettings
-  ).aggregate(core, service)
+  ).aggregate(core, catalogue, service)
 
   
   lazy val core = Project(
@@ -65,15 +65,15 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.scaldi
   )
 
-    lazy val validator = Project(
-    id = "gluon-validator",
-    base = file("validator"),
+    lazy val catalogue = Project(
+    id = "gluon-catalogue",
+    base = file("catalogue"),
     settings = Project.defaultSettings ++
       sharedSettings ++
       SbtStartScript.startScriptForClassesSettings ++
       ScroogeSBT.newSettings
   ).settings(
-    name := "gluon-validator",
+    name := "gluon-catalogue",
 
     libraryDependencies ++= Seq(
     ) ++ Libs.scalaz
@@ -81,10 +81,18 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.finagleThrift
       ++ Libs.libThrift
       ++ Libs.akka
+      ++ Libs.slf4j
+      ++ Libs.logback
+      ++ Libs.finagleCore
+      ++ Libs.scalaJLine
+      ++ Libs.mimepull
       ++ Libs.scaldi
+      ++ Libs.scaldiAkka
+      ++ Libs.bijection
+      ++ Libs.kafka
   ).dependsOn(core)
 
-  lazy val service = Project(
+    lazy val service = Project(
     id = "gluon-service",
     base = file("service"),
     settings = Project.defaultSettings ++
@@ -103,7 +111,8 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.scaldi
       ++ Libs.scaldiAkka
       ++ Libs.bijection
-  ).dependsOn(core, validator)
+      ++ Libs.kafka
+  ).dependsOn(core, catalogue)
 
 
 }

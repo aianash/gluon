@@ -17,6 +17,7 @@ import akka.event.Logging
 
 import com.goshoplane.common._
 import com.goshoplane.gluon.service._
+import gluon.catalogue._
 
 import com.twitter.util.{Future => TwitterFuture}
 import com.twitter.finagle.Thrift
@@ -25,16 +26,18 @@ import com.twitter.bijection.Conversion.asMethod
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-class GluonService(implicit inj: Injector) extends Gluon.FutureIface{
+class GluonService(implicit inj: Injector) extends Gluon.FutureIface  {
   
   implicit val system = inject [ActorSystem]
 
   val log = Logging.getLogger(system, this)
-
+  val processor = system.actorOf(CatalogueProcessor.props)
   import system._
   val settings = GluonSettings(system)
 
   def publish(serializedCatalogueItem: SerializedCatalogueItem): TwitterFuture[Boolean] = {
+    println("Got Message from client")
+    processor ! ProcessCatalogue(serializedCatalogueItem)
     TwitterFuture.value(true)
   }
 }

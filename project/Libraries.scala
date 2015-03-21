@@ -44,6 +44,7 @@ trait Libraries {
     val retry           = "0.2.0"
     val odelay          = "0.1.0"
     val researchpaperParser = "1.0"
+    val kafka           = "0.8.2.0"
   }
 
 
@@ -222,6 +223,9 @@ trait Libraries {
     val twitterUtil = Seq (
       "com.twitter" %% "util-core"      % Version.twitterUtil)
 
+    val kafka = Seq (
+      "org.apache.kafka" % "kafka-clients" % Version.kafka,
+      "org.apache.kafka" %% "kafka" % Version.kafka )
 
   }
 }

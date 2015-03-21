@@ -1,4 +1,4 @@
-package gluon.validator
+package gluon.catalogue.validators
 
 import com.goshoplane.common._
 
