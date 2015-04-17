@@ -50,9 +50,7 @@ object GluonBuild extends Build with Libraries {
     id = "gluon-core",
     base = file("core"),
     settings = Project.defaultSettings ++
-      sharedSettings ++
-      SbtStartScript.startScriptForClassesSettings ++
-      ScroogeSBT.newSettings
+      sharedSettings
   ).settings(
     name := "gluon-core",
 
@@ -70,8 +68,7 @@ object GluonBuild extends Build with Libraries {
     base = file("catalogue"),
     settings = Project.defaultSettings ++
       sharedSettings ++
-      SbtStartScript.startScriptForClassesSettings ++
-      ScroogeSBT.newSettings
+      SbtStartScript.startScriptForClassesSettings
   ).settings(
     name := "gluon-catalogue",
 

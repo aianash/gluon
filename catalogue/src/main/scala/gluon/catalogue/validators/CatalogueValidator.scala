@@ -21,6 +21,7 @@ import goshoplane.commons.catalogue._
 class CatalogueValidator extends Actor with ActorLogging {
 
   def receive = {
+
     case ValidateCatalogue(serializedCatalogueItem) =>
       try {
         CatalogueItem.decode(serializedCatalogueItem)

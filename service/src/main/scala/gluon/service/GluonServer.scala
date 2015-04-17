@@ -4,10 +4,7 @@ import scaldi.akka.AkkaInjectable._
 
 import com.typesafe.config.ConfigFactory
 
-import com.twitter.finagle.Thrift
 import com.twitter.util.Await
-
-import akka.actor.ActorSystem
 
 import gluon.core.injectors._
 import gluon.service.injectors._

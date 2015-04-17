@@ -1,57 +1,51 @@
 package gluon.catalogue.publishers
 
-import org.apache.kafka.clients.producer._
-import org.apache.kafka.common.serialization._
 import java.util.Properties
 
-import scala.util.{Failure => TFailure, Success => TSuccess, Try}
-import scala.concurrent._, duration._
+import scala.util.control.NonFatal
 
-import scalaz._, Scalaz._
-import scalaz.std.option._
-import scalaz.syntax.monad._
-
-import scaldi.Injector
-import scaldi.akka.AkkaInjectable._
-
-import akka.actor.{Actor, Props}
-import akka.actor.ActorSystem
-import akka.actor.ActorLogging
+import akka.actor.{Actor, Props, ActorSystem, ActorLogging}
 import akka.util.Timeout
-import akka.event.Logging
 
 import com.goshoplane.common._
 
-import com.twitter.util.{Future => TwitterFuture}
-import com.twitter.finagle.Thrift
-import com.twitter.bijection._, twitter_util.UtilBijections._
-import com.twitter.bijection.Conversion.asMethod
+import gluon.catalogue.CatalogueSettings
 
-import com.typesafe.config.{Config, ConfigFactory}
+import org.apache.kafka.clients.producer._
+import org.apache.kafka.common.serialization._
 
-class CataloguePublisher extends Actor  with ActorLogging{
-  
+
+
+class CataloguePublisher extends Actor  with ActorLogging {
+
   val props = new Properties
-   
-  props.put("metadata.broker.list", "broker:9092");
-  props.put("serializer.class", "kafka.serializer.StringEncoder");
 
-   props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");  
-  props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-  props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-   props.put(ProducerConfig.CLIENT_ID_CONFIG, "my-producer");
-  props.put("partitioner.class", "kafka.producer.DefaultPartitioner");
-  props.put("request.required.acks", "1");
+  val settings = CatalogueSettings(context.system)
+  import settings._
 
-  val publisher = new KafkaProducer[String, String](props)
+  props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,      KafkaEndpoint)
+  props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaValueSerializer)
+  props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,   KafkaKeySerializer)
+  props.put(ProducerConfig.CLIENT_ID_CONFIG,              KafkaClientId)
+  props.put(ProducerConfig.ACKS_CONFIG,                   KafkaRequestsRequiredAcks)
+
+
+  val publisher = new KafkaProducer[String, SerializedCatalogueItem](props)
 
   def receive = {
-    case PublishCatalogue(serializedCatalogueItem) =>
-      println("Message received at publisher from processor")
-      val a = publisher.send(new ProducerRecord[String, String]("test","key", "hello world!")).get()
-      println("Message sent to kakfa ------------ result is "  + a.toString)
-      sender() ! true
+
+    case PublishCatalogue(item) =>
+      val key    = item.itemId.storeId.stuid.toString
+      val record = new ProducerRecord(KafkaTopic, key, item)
+
+      try {
+        publisher.send(record).get()
+      } catch {
+        case NonFatal(ex) => log.error("Error while sending catalogue item", item, ex)
+      }
+
   }
+
 }
 
 object CataloguePublisher {
