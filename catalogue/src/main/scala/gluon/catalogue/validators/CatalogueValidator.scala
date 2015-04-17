@@ -1,35 +1,37 @@
 package gluon.catalogue.validators
 
-import scala.util.{Failure => TFailure, Success => TSuccess, Try}
 import scala.concurrent._, duration._
+import scala.util.control.NonFatal
 
 import scalaz._, Scalaz._
 import scalaz.std.option._
 import scalaz.syntax.monad._
 
-import scaldi.Injector
-import scaldi.akka.AkkaInjectable._
-
-import akka.actor.{Actor, Props}
-import akka.actor.ActorSystem
+import akka.actor.{Actor, Props, ActorLogging}
 import akka.util.Timeout
-import akka.event.Logging
 
 import com.goshoplane.common._
 
-import com.twitter.util.{Future => TwitterFuture}
-import com.twitter.finagle.Thrift
-import com.twitter.bijection._, twitter_util.UtilBijections._
-import com.twitter.bijection.Conversion.asMethod
+import goshoplane.commons.catalogue._
 
-import com.typesafe.config.{Config, ConfigFactory}
+/**
+ * Currently just verifies if the catalogue item
+ * is decodable
+ */
+class CatalogueValidator extends Actor with ActorLogging {
 
-class CatalogueValidator extends Actor {
   def receive = {
     case ValidateCatalogue(serializedCatalogueItem) =>
-      println("Message received at validator from processor")
-      sender() ! true
+      try {
+        CatalogueItem.decode(serializedCatalogueItem)
+        sender() ! true
+      } catch {
+        case NonFatal(ex) =>
+          log.warning("Invalid catalogue item received", serializedCatalogueItem.itemId, ex)
+          sender() ! false
+      }
   }
+
 }
 
 object CatalogueValidator {

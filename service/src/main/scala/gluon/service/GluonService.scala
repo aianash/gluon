@@ -2,6 +2,7 @@ package gluon.service
 
 import scala.util.{Failure => TFailure, Success => TSuccess, Try}
 import scala.concurrent._, duration._
+import scala.util.control.NonFatal
 
 import java.net.InetSocketAddress
 
@@ -28,26 +29,44 @@ import com.twitter.finagle.builder.ServerBuilder
 import com.twitter.bijection._, twitter_util.UtilBijections._
 import com.twitter.bijection.Conversion.asMethod
 
-
-import com.typesafe.config.{Config, ConfigFactory}
-
 import org.apache.thrift.protocol.TBinaryProtocol
 
-class GluonService(implicit inj: Injector) extends Gluon.FutureIface  {
+import goshoplane.commons.core.protocols.Implicits._
+
+
+
+class GluonService(implicit inj: Injector) extends Gluon.FutureIface {
 
   implicit val system = inject [ActorSystem]
 
-  val log = Logging.getLogger(system, this)
-
   import system._
 
+  val log      = Logging.getLogger(system, this)
   val settings = GluonSettings(system)
 
   val Processor = system.actorOf(CatalogueProcessor.props)
 
+
   def publish(serializedCatalogueItem: SerializedCatalogueItem) = {
-    Processor ! ProcessCatalogue(serializedCatalogueItem)
-    TwitterFuture.value(true)
+    implicit val timeout = Timeout(500 milliseconds)
+
+    val successF = Processor ?= ProcessCatalogue(serializedCatalogueItem)
+
+    awaitResult(successF, 500 milliseconds, {
+      case NonFatal(ex) => TFailure(GluonException("Error while creating user"))
+    })
+  }
+
+
+
+
+  /**
+   * A helper method to await on Scala Future and encapsulate the result into TwitterFuture
+   */
+  private def awaitResult[T, U >: T](future: Future[T], timeout: Duration, ex: PartialFunction[Throwable, Try[U]]): TwitterFuture[U] = {
+    TwitterFuture.value(Try {
+      Await.result(future, timeout)
+    } recoverWith(ex) get)
   }
 
 }

@@ -7,50 +7,43 @@ import scalaz._, Scalaz._
 import scalaz.std.option._
 import scalaz.syntax.monad._
 
-import scaldi.Injector
-import scaldi.akka.AkkaInjectable._
-
-import akka.actor.{Actor, Props}
-import akka.actor.ActorSystem
-import akka.actor.ActorLogging
+import akka.actor.{Actor, Props, ActorLogging, ActorSystem}
 import akka.util.Timeout
-import akka.pattern.ask
-import akka.event.Logging
-
+import akka.pattern.pipe
 
 import com.goshoplane.common._
+
 import gluon.catalogue._
 import gluon.catalogue.validators._
 import gluon.catalogue.publishers._
 
-import com.twitter.util.{Future => TwitterFuture}
-import com.twitter.finagle.Thrift
-import com.twitter.bijection._, twitter_util.UtilBijections._
-import com.twitter.bijection.Conversion.asMethod
+import goshoplane.commons.core.protocols.Implicits._
 
-import com.typesafe.config.{Config, ConfigFactory}
 
 class CatalogueProcessor extends Actor with ActorLogging {
 
-    import context.dispatcher
+  import context.dispatcher
 
-    val catalogueValidator = context.actorOf(CatalogueValidator.props)
-    
-    val cataloguePublisher = context.actorOf(CataloguePublisher.props)
+  val catalogueValidator = context.actorOf(CatalogueValidator.props)
+  val cataloguePublisher = context.actorOf(CataloguePublisher.props)
 
-    def receive = {
-      case ProcessCatalogue(serializedCatalogueItem) =>
-        println("Message received at processor from service")
-        implicit val timeout = Timeout(2 seconds)
-        val successF = (catalogueValidator ? ValidateCatalogue(serializedCatalogueItem)).mapTo[Boolean]
+  context watch catalogueValidator
+  context watch cataloguePublisher
 
-        successF.filter(x => x).foreach { _ => 
-          println("Message received at processor from validator success")
-          cataloguePublisher ! PublishCatalogue(serializedCatalogueItem)
-        }
 
-        sender() ! successF
-    }
+  def receive = {
+
+    case ProcessCatalogue(serializedCatalogueItem) =>
+      implicit val timeout = Timeout(2 seconds)
+      val successF = catalogueValidator ?= ValidateCatalogue(serializedCatalogueItem)
+
+      successF.filter(x => x).foreach { _ =>
+        cataloguePublisher ! PublishCatalogue(serializedCatalogueItem)
+      }
+
+      successF pipeTo sender()
+  }
+
 }
 
 object CatalogueProcessor  {
