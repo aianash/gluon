@@ -27,19 +27,22 @@ import com.twitter.bijection.Conversion.asMethod
 import com.typesafe.config.{Config, ConfigFactory}
 
 class GluonService(implicit inj: Injector) extends Gluon.FutureIface  {
-  
+
   implicit val system = inject [ActorSystem]
 
   val log = Logging.getLogger(system, this)
-  val processor = system.actorOf(CatalogueProcessor.props)
+
   import system._
+
   val settings = GluonSettings(system)
 
-  def publish(serializedCatalogueItem: SerializedCatalogueItem): TwitterFuture[Boolean] = {
-    println("Got Message from client")
-    processor ! ProcessCatalogue(serializedCatalogueItem)
+  val Processor = system.actorOf(CatalogueProcessor.props)
+
+  def publish(serializedCatalogueItem: SerializedCatalogueItem) = {
+    Processor ! ProcessCatalogue(serializedCatalogueItem)
     TwitterFuture.value(true)
   }
+
 }
 
 
@@ -47,6 +50,15 @@ object GluonService {
 
   def start(implicit inj: Injector) = {
     val settings = GluonSettings(inject [ActorSystem])
-    Thrift.serveIface(settings.GluonEndpoint, inject [GluonService])
+
+    val protocol = new TBinaryProtocol.Factory()
+    val service  = new Neutrino$FinagleService(inject [GluonService], protocol)
+    val address  = new InetSocketAddress(settings.GluonHost, settings.GluonPort)
+
+    ServerBuilder()
+      .codec(ThriftServerFramedCodec())
+      .name(settings.ServiceName)
+      .bindTo(address)
+      .build(service)
   }
 }

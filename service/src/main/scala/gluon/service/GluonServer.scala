@@ -22,14 +22,17 @@ import gluon.service.injectors._
 object GluonServer {
 
   def main(args: Array[String]) {
-    
+
     val config = ConfigFactory.load("gluon")
 
     implicit val appModule = new ActorSystemModule(config) :: new GluonModule
 
-    val service = GluonService.start
+    val server = GluonService.start
 
-    Await.ready(service)
+    scala.sys.addShutdownHook {
+      val waitF = server.close()
+      Await.ready(waitF)
+    }
   }
 
 }
