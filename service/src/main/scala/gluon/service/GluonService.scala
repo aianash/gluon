@@ -3,6 +3,8 @@ package gluon.service
 import scala.util.{Failure => TFailure, Success => TSuccess, Try}
 import scala.concurrent._, duration._
 
+import java.net.InetSocketAddress
+
 import scalaz._, Scalaz._
 import scalaz.std.option._
 import scalaz.syntax.monad._
@@ -21,10 +23,15 @@ import gluon.catalogue._
 
 import com.twitter.util.{Future => TwitterFuture}
 import com.twitter.finagle.Thrift
+import com.twitter.finagle.thrift.ThriftServerFramedCodec
+import com.twitter.finagle.builder.ServerBuilder
 import com.twitter.bijection._, twitter_util.UtilBijections._
 import com.twitter.bijection.Conversion.asMethod
 
+
 import com.typesafe.config.{Config, ConfigFactory}
+
+import org.apache.thrift.protocol.TBinaryProtocol
 
 class GluonService(implicit inj: Injector) extends Gluon.FutureIface  {
 
@@ -52,7 +59,7 @@ object GluonService {
     val settings = GluonSettings(inject [ActorSystem])
 
     val protocol = new TBinaryProtocol.Factory()
-    val service  = new Neutrino$FinagleService(inject [GluonService], protocol)
+    val service  = new Gluon$FinagleService(inject [GluonService], protocol)
     val address  = new InetSocketAddress(settings.GluonHost, settings.GluonPort)
 
     ServerBuilder()

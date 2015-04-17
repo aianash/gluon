@@ -27,7 +27,7 @@ trait Libraries {
     val commonsLang     = "2.6"
     val provoz          = "0.0.1"
     val hemingway       = "1.0.0"
-    val libThrift       = "0.8.0" // [check update to] 0.9.1
+    val libThrift       = "0.9.2"
     val bijection       = "0.6.2"
     val scrooge         = "3.17.0"
     val commonsConfig   = "1.9"
@@ -45,11 +45,16 @@ trait Libraries {
     val odelay          = "0.1.0"
     val researchpaperParser = "1.0"
     val kafka           = "0.8.2.0"
+    val catalogueCommons = "0.0.1"
   }
 
 
 
   object Libs {
+
+    val catalogueCommons = Seq (
+      "com.goshoplane" %% "commons-catalogue" % Version.catalogueCommons)
+
 
     val factorie = Seq (
       "cc.factorie" % "factorie" % Version.factorie)

@@ -38,14 +38,14 @@ object GluonBuild extends Build with Libraries {
 
     publishMavenStyle := true
   ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings
-  
+
   lazy val gluon = Project(
     id = "gluon",
     base = file("."),
     settings = Project.defaultSettings
   ).aggregate(core, catalogue, service)
 
-  
+
   lazy val core = Project(
     id = "gluon-core",
     base = file("core"),
@@ -90,6 +90,7 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.scaldiAkka
       ++ Libs.bijection
       ++ Libs.kafka
+      ++ Libs.catalogueCommons
   ).dependsOn(core)
 
     lazy val service = Project(
