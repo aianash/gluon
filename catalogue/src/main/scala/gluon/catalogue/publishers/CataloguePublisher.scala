@@ -23,6 +23,7 @@ class CataloguePublisher extends Actor  with ActorLogging {
   val settings = CatalogueSettings(context.system)
   import settings._
 
+  println(KafkaEndpoint)
   props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,      KafkaEndpoint)
   props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaValueSerializer)
   props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,   KafkaKeySerializer)

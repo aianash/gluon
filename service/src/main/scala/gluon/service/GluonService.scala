@@ -82,7 +82,7 @@ object GluonService {
     val address  = new InetSocketAddress(settings.GluonHost, settings.GluonPort)
 
     ServerBuilder()
-      .codec(ThriftServerFramedCodec())
+      .codec(ThriftServerFramedCodec(protocol))
       .name(settings.ServiceName)
       .bindTo(address)
       .build(service)

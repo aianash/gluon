@@ -28,7 +28,7 @@ class CatalogueValidator extends Actor with ActorLogging {
         sender() ! true
       } catch {
         case NonFatal(ex) =>
-          log.warning("Invalid catalogue item received", serializedCatalogueItem.itemId, ex)
+          log.error(ex, "Invalid catalogue item received", serializedCatalogueItem.itemId)
           sender() ! false
       }
   }

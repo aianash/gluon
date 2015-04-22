@@ -27,7 +27,7 @@ object GluonBuild extends Build with Libraries {
     javaOptions += "-Xmx2500M",
 
     resolvers ++= Seq(
-      "ReaderDeck Releases" at "http://repo.readerdeck.com/artifactory/readerdeck-releases",
+      // "ReaderDeck Releases" at "http://repo.readerdeck.com/artifactory/readerdeck-releases",
       "anormcypher" at "http://repo.anormcypher.org/",
       "Akka Repository" at "http://repo.akka.io/releases",
       "Spray Repository" at "http://repo.spray.io/",
