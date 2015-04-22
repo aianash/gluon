@@ -81,12 +81,11 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.slf4j
       ++ Libs.logback
       ++ Libs.finagleCore
-      ++ Libs.scalaJLine
       ++ Libs.mimepull
       ++ Libs.scaldi
       ++ Libs.scaldiAkka
       ++ Libs.bijection
-      ++ Libs.kafka
+      ++ Libs.kafkaClient
       ++ Libs.catalogueCommons
   ).dependsOn(core)
 
@@ -104,12 +103,10 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.slf4j
       ++ Libs.logback
       ++ Libs.finagleCore
-      ++ Libs.scalaJLine
       ++ Libs.mimepull
       ++ Libs.scaldi
       ++ Libs.scaldiAkka
       ++ Libs.bijection
-      ++ Libs.kafka
   ).dependsOn(core, catalogue)
 
 

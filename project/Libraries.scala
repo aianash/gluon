@@ -228,9 +228,9 @@ trait Libraries {
     val twitterUtil = Seq (
       "com.twitter" %% "util-core"      % Version.twitterUtil)
 
-    val kafka = Seq (
-      "org.apache.kafka" % "kafka-clients" % Version.kafka,
-      "org.apache.kafka" %% "kafka" % Version.kafka )
+    val kafkaClient = Seq (
+      "org.apache.kafka" % "kafka-clients" % Version.kafka)
+      // "org.apache.kafka" %% "kafka" % Version.kafka )
 
   }
 }
