@@ -39,7 +39,11 @@ object TestGluonClient {
       sizes          = Sizes(Array("32", "34")),
       brand          = Brand("levis men's jeans"),
       description    = Description("new cool fabric"),
-      price          = Price(1977)
+      price          = Price(1977),
+      fabric         = ApparelFabric("fabric"),
+      style          = ApparelStyle("asdf"),
+      fit            = ApparelFit("asdfs"),
+      productImage   = ProductImage("asdf", "asdfasf", "asdfasdf")
     )
 
     val encoded = CatalogueItem.encode(clothingItem).get
