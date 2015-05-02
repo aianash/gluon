@@ -1,7 +1,8 @@
 package gluon.catalogue
 
-import scala.util.{Failure => TFailure, Success => TSuccess, Try}
+import scala.util.{Failure, Success, Try}
 import scala.concurrent._, duration._
+import scala.util.control.NonFatal
 
 import scalaz._, Scalaz._
 import scalaz.std.option._
@@ -24,24 +25,36 @@ class CatalogueProcessor extends Actor with ActorLogging {
 
   import context.dispatcher
 
-  val catalogueValidator = context.actorOf(CatalogueValidator.props)
-  val cataloguePublisher = context.actorOf(CataloguePublisher.props)
+  val Validator = context.actorOf(CatalogueValidator.props)
+  val Publisher = context.actorOf(CataloguePublisher.props)
 
-  context watch catalogueValidator
-  context watch cataloguePublisher
+  context watch Validator
+  context watch Publisher
 
 
   def receive = {
 
-    case ProcessCatalogue(serializedCatalogueItem) =>
+    case ProcessCatalogue(item) =>
       implicit val timeout = Timeout(2 seconds)
-      val successF = catalogueValidator ?= ValidateCatalogue(serializedCatalogueItem)
+      (Validator ?= ValidateCatalogue(item))
+        .recover {
+          // [TO DO] Handle Ask timeout exception
 
-      successF.filter(x => x).foreach { _ =>
-        cataloguePublisher ! PublishCatalogue(serializedCatalogueItem)
-      }
+          case NonFatal(ex) =>
+            log.error(ex, "Caught error = {} from validator for item id = {}.{}",
+                          ex.getMessage,
+                          item.itemId.storeId.stuid,
+                          item.itemId.cuid)
+            false // After logging error mark it as not valid
+        } andThen {
+          case Success(valid) if valid =>
+            Publisher ! PublishCatalogue(item) // [NOTE] Sending to Publisher as side effect
+                                               // because immediately after validation
+                                               // tell the sender that processing is finished
+                                               // and let Gluon take the responsibility
+                                               // to do so
+        } pipeTo sender()
 
-      successF pipeTo sender()
   }
 
 }

@@ -47,16 +47,20 @@ class GluonService(implicit inj: Injector) extends Gluon.FutureIface {
   val Processor = system.actorOf(CatalogueProcessor.props)
 
 
-  def publish(serializedCatalogueItem: SerializedCatalogueItem) = {
+  def publish(item: SerializedCatalogueItem) = {
     implicit val timeout = Timeout(500 milliseconds)
 
-    val successF = Processor ?= ProcessCatalogue(serializedCatalogueItem)
+    val successF = Processor ?= ProcessCatalogue(item)
 
     awaitResult(successF, 500 milliseconds, {
-      case NonFatal(ex) => TFailure(GluonException("Error while creating user"))
+      case NonFatal(ex) =>
+        val statement = s"Error while publishing catalogue item" +
+                        s" for itemId = ${item.itemId.storeId.stuid}.${item.itemId.cuid}"
+
+        log.error(ex, statement)
+        TFailure(GluonException(statement))
     })
   }
-
 
 
 

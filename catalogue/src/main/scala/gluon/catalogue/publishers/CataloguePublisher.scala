@@ -18,12 +18,10 @@ import org.apache.kafka.common.serialization._
 
 class CataloguePublisher extends Actor  with ActorLogging {
 
-  val props = new Properties
-
   val settings = CatalogueSettings(context.system)
   import settings._
 
-  println(KafkaEndpoint)
+  val props = new Properties
   props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,      KafkaEndpoint)
   props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaValueSerializer)
   props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,   KafkaKeySerializer)
@@ -31,7 +29,8 @@ class CataloguePublisher extends Actor  with ActorLogging {
   props.put(ProducerConfig.ACKS_CONFIG,                   KafkaRequestsRequiredAcks)
 
 
-  val publisher = new KafkaProducer[String, SerializedCatalogueItem](props)
+  // handle any exception here
+  val producer = new KafkaProducer[String, SerializedCatalogueItem](props)
 
   def receive = {
 
@@ -40,9 +39,13 @@ class CataloguePublisher extends Actor  with ActorLogging {
       val record = new ProducerRecord(KafkaTopic, key, item)
 
       try {
-        publisher.send(record).get()
+        producer.send(record).get()
       } catch {
-        case NonFatal(ex) => log.error("Error while sending catalogue item", item, ex)
+        case NonFatal(ex) =>
+          log.error(ex, "Caught error = {} while sending catalogue item with id = {}.{}",
+                        ex.getMessage,
+                        item.itemId.storeId.stuid,
+                        item.itemId.cuid)
       }
 
   }
