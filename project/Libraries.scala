@@ -18,8 +18,8 @@ trait Libraries {
     val neo4j           = "2.0.3"
     val stanfordCoreNlp = "3.3.1"
     val factorie        = "1.0"
-    val twitterUtil     = "6.22.2"
-    val finagle         = "6.22.0"
+    val twitterUtil     = "6.23.0"
+    val finagle         = "6.24.0"
     val slf4j           = "1.7.6"
     val scallop         = "0.9.4"
     val stringmetric    = "0.25.3"
@@ -27,7 +27,7 @@ trait Libraries {
     val commonsLang     = "2.6"
     val provoz          = "0.0.1"
     val hemingway       = "1.0.0"
-    val libThrift       = "0.8.0" // [check update to] 0.9.1
+    val libThrift       = "0.9.2"
     val bijection       = "0.6.2"
     val scrooge         = "3.17.0"
     val commonsConfig   = "1.9"
@@ -45,11 +45,16 @@ trait Libraries {
     val odelay          = "0.1.0"
     val researchpaperParser = "1.0"
     val kafka           = "0.8.2.0"
+    val catalogueCommons = "0.0.1"
   }
 
 
 
   object Libs {
+
+    val catalogueCommons = Seq (
+      "com.goshoplane" %% "commons-catalogue" % Version.catalogueCommons)
+
 
     val factorie = Seq (
       "cc.factorie" % "factorie" % Version.factorie)
@@ -223,9 +228,9 @@ trait Libraries {
     val twitterUtil = Seq (
       "com.twitter" %% "util-core"      % Version.twitterUtil)
 
-    val kafka = Seq (
-      "org.apache.kafka" % "kafka-clients" % Version.kafka,
-      "org.apache.kafka" %% "kafka" % Version.kafka )
+    val kafkaClient = Seq (
+      "org.apache.kafka" % "kafka-clients" % Version.kafka)
+      // "org.apache.kafka" %% "kafka" % Version.kafka )
 
   }
 }

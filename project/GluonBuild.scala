@@ -27,7 +27,7 @@ object GluonBuild extends Build with Libraries {
     javaOptions += "-Xmx2500M",
 
     resolvers ++= Seq(
-      "ReaderDeck Releases" at "http://repo.readerdeck.com/artifactory/readerdeck-releases",
+      // "ReaderDeck Releases" at "http://repo.readerdeck.com/artifactory/readerdeck-releases",
       "anormcypher" at "http://repo.anormcypher.org/",
       "Akka Repository" at "http://repo.akka.io/releases",
       "Spray Repository" at "http://repo.spray.io/",
@@ -38,21 +38,19 @@ object GluonBuild extends Build with Libraries {
 
     publishMavenStyle := true
   ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings
-  
+
   lazy val gluon = Project(
     id = "gluon",
     base = file("."),
     settings = Project.defaultSettings
   ).aggregate(core, catalogue, service)
 
-  
+
   lazy val core = Project(
     id = "gluon-core",
     base = file("core"),
     settings = Project.defaultSettings ++
-      sharedSettings ++
-      SbtStartScript.startScriptForClassesSettings ++
-      ScroogeSBT.newSettings
+      sharedSettings
   ).settings(
     name := "gluon-core",
 
@@ -70,8 +68,7 @@ object GluonBuild extends Build with Libraries {
     base = file("catalogue"),
     settings = Project.defaultSettings ++
       sharedSettings ++
-      SbtStartScript.startScriptForClassesSettings ++
-      ScroogeSBT.newSettings
+      SbtStartScript.startScriptForClassesSettings
   ).settings(
     name := "gluon-catalogue",
 
@@ -84,12 +81,12 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.slf4j
       ++ Libs.logback
       ++ Libs.finagleCore
-      ++ Libs.scalaJLine
       ++ Libs.mimepull
       ++ Libs.scaldi
       ++ Libs.scaldiAkka
       ++ Libs.bijection
-      ++ Libs.kafka
+      ++ Libs.kafkaClient
+      ++ Libs.catalogueCommons
   ).dependsOn(core)
 
     lazy val service = Project(
@@ -106,12 +103,10 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.slf4j
       ++ Libs.logback
       ++ Libs.finagleCore
-      ++ Libs.scalaJLine
       ++ Libs.mimepull
       ++ Libs.scaldi
       ++ Libs.scaldiAkka
       ++ Libs.bijection
-      ++ Libs.kafka
   ).dependsOn(core, catalogue)
 
 

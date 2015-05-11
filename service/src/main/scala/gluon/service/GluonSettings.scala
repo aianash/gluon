@@ -20,9 +20,11 @@ class GluonSettings(cfg: Config) extends Extension {
 
   val ActorSystem   = config.getString("gluon.actorSystem")
   val ServiceId     = config.getLong("gluon.service.id")
+  val ServiceName   = config.getString("gluon.service.name")
   val DatacenterId  = config.getLong("gluon.datacenter.id")
 
-  val GluonEndpoint = config.getString("gluon.endpoint") + ":" + config.getInt("gluon.port")
+  val GluonPort     = config.getInt("gluon.port")
+  val GluonHost     = config.getString("gluon.host")
 }
 
 

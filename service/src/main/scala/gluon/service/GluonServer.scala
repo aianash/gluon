@@ -4,13 +4,13 @@ import scaldi.akka.AkkaInjectable._
 
 import com.typesafe.config.ConfigFactory
 
-import com.twitter.finagle.Thrift
 import com.twitter.util.Await
-
-import akka.actor.ActorSystem
 
 import gluon.core.injectors._
 import gluon.service.injectors._
+
+import akka.actor.ActorSystem
+
 
 /**
  * Gluon Server that starts the GluonService
@@ -22,14 +22,27 @@ import gluon.service.injectors._
 object GluonServer {
 
   def main(args: Array[String]) {
-    
+
     val config = ConfigFactory.load("gluon")
 
+    // injector modules for injecting
+    // - ActorSystem
+    // - GluonService
     implicit val appModule = new ActorSystemModule(config) :: new GluonModule
 
-    val service = GluonService.start
+    val system = inject [ActorSystem]
+    val server = GluonService.start
 
-    Await.ready(service)
+    // Proper shutting down service
+    // and actor system
+    scala.sys.addShutdownHook {
+      val waitF = server.close()
+      Await.ready(waitF)
+
+      system.shutdown
+      system.awaitTermination // await until all actors
+                              // under system is shut down
+    }
   }
 
 }
