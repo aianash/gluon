@@ -5,7 +5,7 @@ import akka.actor.{ActorSystem, Extension, ExtensionId, ExtensionIdProvider, Ext
 import com.typesafe.config.{Config, ConfigFactory}
 
 /**
- * Gluon specific settings
+ * Catalogue Processor and its adjacent actors specific settings
  */
 class CatalogueSettings(cfg: Config) extends Extension {
 

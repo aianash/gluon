@@ -1,8 +1,8 @@
 package gluon.catalogue.publishers
 
-import java.util.Properties
-
 import scala.util.control.NonFatal
+
+import java.util.Properties
 
 import akka.actor.{Actor, Props, ActorSystem, ActorLogging}
 import akka.util.Timeout
@@ -15,7 +15,13 @@ import org.apache.kafka.clients.producer._
 import org.apache.kafka.common.serialization._
 
 
-
+/**
+ * This `Actor` publishes the serialized catalogue item to kafka
+ *
+ * [NOTE] Publishing with this actor is thru fire-and-forget
+ * as this doesnt send back any message about status to the
+ * `sender()`
+ */
 class CataloguePublisher extends Actor  with ActorLogging {
 
   val settings = CatalogueSettings(context.system)
@@ -28,14 +34,15 @@ class CataloguePublisher extends Actor  with ActorLogging {
   props.put(ProducerConfig.CLIENT_ID_CONFIG,              KafkaClientId)
   props.put(ProducerConfig.ACKS_CONFIG,                   KafkaRequestsRequiredAcks)
 
-
-  // handle any exception here
+  // [TO DO] handle any exception here
   val producer = new KafkaProducer[String, SerializedCatalogueItem](props)
 
   def receive = {
 
+    /// Publish catalogue item on kafka
     case PublishCatalogue(item) =>
-      val key    = item.itemId.storeId.stuid.toString
+      val key    = item.itemId.storeId.stuid.toString // [TO THINK] Need to think more carefully about
+                                                      // partitiion key
       val record = new ProducerRecord(KafkaTopic, key, item)
 
       try {
@@ -52,6 +59,12 @@ class CataloguePublisher extends Actor  with ActorLogging {
 
 }
 
+
+/**
+ * Companion object to CataloguePublisher
+ */
 object CataloguePublisher {
+
+  // [TO DO] Create a pool of publishers
   def props = Props[CataloguePublisher]
 }

@@ -14,20 +14,26 @@ import com.goshoplane.common._
 
 import goshoplane.commons.catalogue._
 
+
 /**
- * Currently just verifies if the catalogue item
- * is decodable
+ * This `Actor` is used for validating serialized catalogue item
+ * before publishing it to kafka, so as to prevent malformed
+ * serialized items entering into the backend
+ *
+ * Currently it just performs deserialization check, but soon will
+ * be performing more complicated checks on item attributes
+ * and even updating with normalized values
  */
 class CatalogueValidator extends Actor with ActorLogging {
 
   def receive = {
 
+    // Validate catalogue item
     case ValidateCatalogue(item) =>
       try {
-        CatalogueItem.decode(item)
+        CatalogueItem.decode(item) // blocking call here
         sender() ! true // if decode successful then
-                        // send true to the client of
-                        // this actor
+                        // send true to the sender()
       } catch {
         case NonFatal(ex) =>
           log.error(ex, "Caught error = {} while validating catalogue item id = {}.{}",
@@ -42,6 +48,12 @@ class CatalogueValidator extends Actor with ActorLogging {
 
 }
 
+
+/**
+ * Companion object to CatalogueValidator
+ */
 object CatalogueValidator {
+
+  // [TO DO] Create a pool of validators
   def props = Props[CatalogueValidator]
 }

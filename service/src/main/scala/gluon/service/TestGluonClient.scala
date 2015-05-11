@@ -27,7 +27,13 @@ import com.twitter.bijection.Conversion.asMethod
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-
+/**
+ * A sample test client
+ * [NOTE] this is no, unit test case, therefore
+ * actually interact with all the systems involved
+ *
+ * Will be replaced by unit test cases soon
+ */
 object TestGluonClient {
 
   import ItemTypeGroup._
