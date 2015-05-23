@@ -107,6 +107,9 @@ object GluonBuild extends Build with Libraries {
       ++ Libs.scaldi
       ++ Libs.scaldiAkka
       ++ Libs.bijection
+      ++ Libs.play
+      ++ Libs.scallop
+      ++ Libs.scalajHttp
   ).dependsOn(core, catalogue)
 
 
