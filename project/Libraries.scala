@@ -11,7 +11,7 @@ trait Libraries {
     val scala           = "2.10.4"
     val lucene          = "4.8.0"
     val akka            = "2.3.6"
-    val scalaz          = "7.0.6"
+    val scalaz          = "7.1.1"
     val graphstream     = "1.2"
     val fastutil        = "6.5.15"
     val argonaut        = "6.0.4"
@@ -45,15 +45,24 @@ trait Libraries {
     val odelay          = "0.1.0"
     val researchpaperParser = "1.0"
     val kafka           = "0.8.2.0"
+    val play            = "2.3.8"
     val catalogueCommons = "0.0.1"
+    val scalajHttp      = "1.1.4"
   }
 
 
 
   object Libs {
 
+    val scalajHttp = Seq (
+      "org.scalaj" %% "scalaj-http" % Version.scalajHttp)
+
     val catalogueCommons = Seq (
       "com.goshoplane" %% "commons-catalogue" % Version.catalogueCommons)
+
+
+    val play = Seq(
+      "com.typesafe.play" %% "play" % Version.play)
 
 
     val factorie = Seq (
